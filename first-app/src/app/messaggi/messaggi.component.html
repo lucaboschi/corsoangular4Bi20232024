@@ -1,0 +1,54 @@
+<h1>Messaggi</h1>
+
+<!-- Invece di avere una struttura statica ...
+<ul>
+    <li>Primo messaggio</li>
+    <li>Secondo messaggio</li>
+    <li>Terzo messaggio</li>
+</ul>
+
+... preparo un ciclo in cui aggiunge tanti <li> quanti sono i messaggi
+
+-->
+
+<!-- sezione aggiunta dopo la crazione della tabella
+mi permette di poter inserire nuovi messaggi -->
+<div>
+    <input type = "text" [(ngModel)]="nuovoMessaggio"><button (click)="aggiungiMessaggio()">Aggiungi</button>
+</div>
+
+
+<ul>
+    <li *ngFor="let messaggio of messaggi">{{messaggio}}</li>
+</ul>
+ 
+<!-- Per inserire i messaggi nella tabella: -->
+
+<!-- aggiungo nfIf perchè se la variabile messaggi è vuota,
+non vorrei mostrare nulla -->
+<!-- La tabella viene inserita nel DOM solo se la lunghezza
+di messaggi è maggiore di 0  -->
+
+<table border="1" *ngIf = "messaggi.length>0; else nomessaggi">
+    <tr>
+        <th>ID</th>
+        <th>Messaggio</th>
+        <th>Descrizione</th>
+    </tr>
+    <!-- ripeto la riga tante volte quanti sono i messaggi
+    inoltre, utilizzo la variabile i come contatore (indice) -->
+    <tr *ngFor = "let messaggio of messaggi; let i = index">
+        <!-- sommo 1 dato che index parte da 0 -->
+        <td>{{i+1}}</td>
+        <td>{{messaggio}}</td>
+        <td><button (click) = "eliminaMessaggio(i)">Cancella</button></td>
+    </tr>
+</table>
+
+<ng-template #nomessaggi>
+    <p>Non ci sono messaggi</p>
+</ng-template>
+
+<!-- 
+<p *ngIf = "messaggi.length<=0">Non ci sono messaggi</p>
+-->

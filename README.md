@@ -235,8 +235,81 @@ In HTML:
 <p [style.color]="textColor">There are {{nrStudenti}} studenti</p>
 ```
 
+
+
+###### Event binding
+Supponiamo di voler inserire un bottone che interrompa il timer
+e lo riporti a 15 (un bottone di reset).
+Per associare una funzione ad un bottone, la funzione javascript tradizionale è
+```
+<button onclick="nomefunzione">
+```
+In Angular, cancello on nel nome della funzione ed il nome dell'evento lo metto tra parentesi tonde.
+```
+<button (click)="reset()">Reset</button>
+```
+Chiamo reset la funzione e metto le parentesi tonde.
+Dichiaro ora la funzione reset(). Per far ciò, vado nel codice typescript.
+Le funzioni devono essere metodi della classe.
+```
+reset(): void
+  {}
+```
+
+Nella classe, dichiaro la varaibile.
+```
+timer:any;
+any vuol dire che la variabile non è tipizzata: può assumere qualsiasi valore
+```
+
+```
+timer:number;
+facendo così mi dà errore perché deve avere un valore
+```
+
+```
+timer!:number;
+mettendo il ! gli permette di avere un qualsisi valore, anche null.
+```
+
+Devo cambiare anche il metodo ngOnInit
+```
+  ngOnInit(): void {
+    this.timer = setInterval(() => {
+      this.nrStudenti--;
+      if(this.nrStudenti<8) {
+        this.textColor = 'red';
+      }
+    },1000);
+  }
+```
+
 ###### Two-way Binding
 modalità di tipo: two-way binding.
+Aggiornamento può avvenire in modo bidirezionale: il mio oggetto nella pagina modifica la variabile typescript E la variabile typescript modifica l'oggetto html.
+
+Nel file html, aggiungo <input type ="text"> 
+Modifico il file app.module.ts
+File module: contiene l'import dei moduli che utilizziamo.
+Negli imports[], aggiungo FormsModule.
+
+```
+imports: [
+    BrowserModule,
+    FormsModule
+  ],
+```
+```
+<p><input type ="text" [(ngModel)]="nome"> </p>
+
+ngModel: attiva il two-way binding
+```
+###### Le variabili
+
+Le variabili sono tipizzate; se voglio dichiararla di tipo generico, utilizzo la parola chiave any.
+Se la dichiaro di tipo number, deve essere inizializzata: o nel costruttore, o in fase di dichiarazione. Se voglio dichiarare una variabile di tipo number senza assegnargli un valore, aggiungo il punto esclamativo dopo il nome.
+
+
 
 #### Libreria zone.js
 La libreria, quando cambiano i valori degli attributi, aggiorna la pagina. Facciamo un esempio: Vogliamo far diminuire il numero di studenti di una classe, eventualmente cambiando colore.
@@ -258,3 +331,114 @@ ngOnInit(): void {
 ```
 Per accedere all'attributo della classe, devo scrivere: this.nrStudenti
 Quello che noto è che, nella pagina web, i valori vengono aggiornati senza che io faccia nulla; ci pensa la libreria zone.js.
+
+
+#### Creare un nuovo componente
+Apro un nuovo terminale  (nella parte sottostante, clicco sul +)
+Vado nella cartella first-app e scrivo il comando seguente:
+```
+ng generate component messaggi --skip-tests
+
+--skip-tests  : serve per non creare il file spec.ts
+```
+
+##### Struttura di base del file messaggi.component.ts
+
+import { Component } from '@angular/core';
+```
+@Component({
+  selector: 'app-messaggi',
+  templateUrl: './messaggi.component.html',
+  styleUrls: ['./messaggi.component.css']
+})
+export class MessaggiComponent {
+
+}
+```
+
+##### Andiamo a vedere il file app.module.ts
+```
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+
+import { AppComponent } from './app.component';
+import { FormsModule } from '@angular/forms';
+import { MessaggiComponent } from './messaggi/messaggi.component';
+
+@NgModule({
+  declarations: [
+    AppComponent,
+    MessaggiComponent
+  ],
+  imports: [
+    BrowserModule,
+    FormsModule
+  ],
+  providers: [],
+  bootstrap: [MessaggiComponent]
+})
+export class AppModule { }
+
+Devo ricordarmi di cambiare il componente che viene lanciato per primo,
+andando a modificare quanto indicato il bootstrap
+
+bootstrap: [MessaggiComponent]
+
+```
+
+Notiamo che ha creato e importato il componente MessaggiComponent.
+
+##### Andiamo nel file index.html
+Se voglio vedere il nuovo componente, scriverò:
+```
+<body>
+  <app-messaggi></app-messaggi>
+</body>
+```
+
+
+##### Direttiva strutturale *ngFor
+Permette di iterare qualcosa
+
+Nel file ts, preparo un vettore:
+
+```
+messaggi: string[]=['Primo messaggio','Secondo messaggio', 'Terzo messaggio', 'Quarto messaggio'];
+```
+
+ngFor consente di inserire tanti tag quanti sono gli elementi su cui sto facendo l'iterazione.
+
+Nel file html, inserisco il codice per ngFor:
+```
+<ul>
+    <li *ngFor="let messaggio of messaggi">{{messaggio}}</li>
+</ul>
+```
+
+##### Direttiva strutturale *ngIf
+Per creare un else all'ngIf, inserisco il nome di un tag che creo con ng-template.
+In questo caso, se ci sono messaggi nel vettore, crea la tabella;
+altrimenti chiama il tag nomemessaggi e scrive il contenuto
+del paragrafo <p> sottostante.
+
+```
+<table border="1" *ngIf = "messaggi.length>0; else nomessaggi">
+    <tr>
+        <th>ID</th>
+        <th>Messaggio</th>
+        <th>Descrizione</th>
+    </tr>
+    <!-- ripeto la riga tante volte quanti sono i messaggi
+    inoltre, utilizzo la variabile i come contatore (indice) -->
+    <tr *ngFor = "let messaggio of messaggi; let i = index">
+        <!-- sommo 1 dato che index parte da 0 -->
+        <td>{{i+1}}</td>
+        <td>{{messaggio}}</td>
+        <td><button>Cancella</button></td>
+    </tr>
+</table>
+
+<ng-template #nomessaggi>
+    <p>Non ci sono messaggi</p>
+</ng-template>
+```
