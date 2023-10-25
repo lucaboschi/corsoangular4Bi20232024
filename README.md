@@ -441,4 +441,82 @@ del paragrafo <p> sottostante.
 <ng-template #nomessaggi>
     <p>Non ci sono messaggi</p>
 </ng-template>
+```  
+
+
+
+
+<hr>
+
+## Servizi
+
+Un servizio è un'istanza di una classe. Un servizio fornisce servizi ad una applicazione: ad esempio, fornisce elenchi di studenti, mi consente di modificarli, potrebbe generare numeri casuali, potrebbe gestire il servizio di log. Dal punto di vista informatico è un oggetto.  
+Vediamo come due componenti, senza parent/child, possono scambiarsi informazioni tra di loro.
+
 ```
+ng g c studenti-service/studenti-service-table --skip-tests
+ng g c studenti-service/studenti-service-form --skip-tests
+ng g s studenti-service/studenti --skip-tests
+```
+
+Un servizio è una classe con il decoratore <b>@Injectable</b>.  
+Quando vedo <b>@Injectable</b> so che una classe è un servizio.  
+<b>providedIn: 'root' </b> sta a significare che Angular crea una istanza della classe StudentiService quando viene caricata l'applicazione. Quando classe è Injectable, cioè, iniettabile. Questa istanza, creata da Angular, la posso usare in ogni componente.  
+<b>Dependency Injection</b>: è il meccanismo che fa sì che l'oggetto che è creato, ossia in questo caso il mio servizio, lo posso inserire ed utilizzare in qualsiasi componente voglio.
+
+
+```
+constructor(private studentiService:StudentiService){}
+```
+Questo meccanismo farà si che quando viene creato il componente, viene eseguito il costruttore; il costruttore riceve l'istanza del servizio che è stata creata all'avvio dell'applicazione.  
+
+Nel template HTML non posso accedere all'array del servizio; posso solo accedere agli attributi della classe.  
+Gli studenti devono essere un attributo del template.  
+
+Quando un componente viene visualizzato in un'applicazione, vengono lanciati una serie di eventi. Questi eventi possono essere intercettati per eseguire del codice che configuri il componente in un certo modo. Fra questo elenco di eventi ce n'è uno particolarmente importante: onInit.  
+onInit viene eseguito quando il componente è stato caricato in RAM, prima che il mio template venga visualizzato nella pagina.  
+Sono state previste delle interfacce per obbligare il codice ad avere alcuni metodi.  
+
+
+## Observable
+La libreria RXJS permette di gestire flussi asincroni di dati.  
+Il meccanismo observable prevede due attori: 
+observable: invia dei dati e si rende osservabile 
+observer: si mette in ascolto  
+
+Creeremo un observable che emette il flusso dei dati: ogni secondo metterà a disposizione di chi sta osservando un numero casuale. Se c'è un observer, questo observer riceverà il numero casuale.  
+L'Observable verrà implementato attraverso un service, un servizio che metterà a disposizione dei numeri casuali.
+
+```
+ng g c observable/observable-container --skip-tests
+ng g c observable/observer --skip-tests
+ng g s observable/random-emitter --skip-tests
+```
+
+Il servizio dovrà emettere questi numeri random.  
+Gli observable sono dei generics: ogni volta gli devo dire che tipo di dato sta emettendo.  
+Devo poi definire il codice da eseguire quando viene emesso il numero.  
+
+
+```
+numberEmitter = new Observable<number>( (emitter) => {
+    setInterval(() => {
+      emitter.next(Math.random())
+    },1000)
+  });
+```
+Quando ho un observer che si mette ad osservare l'observable, viene eseguito il codice che è indicato nell'espressione lambda.  
+
+Posso decidere ad un certo punto di interrompere questo flusso di emissione di numeri casuali. Miglioro in codice con un controllo sul numero generato che, eventualmente, interromperà il flusso.
+
+```
+numberEmitter = new Observable<number>( (emitter) => {
+    setInterval(() => {
+      let numero = Math.random();
+      emitter.next(numero);
+      if(numero<0.1){
+        emitter.complete();
+      }
+    },1000)
+  });
+  ```

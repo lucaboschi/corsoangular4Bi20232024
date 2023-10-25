@@ -1,0 +1,10 @@
+<table border = "1">
+    <tr>
+        <th>Messaggio</th>
+        <th>Operazione</th>
+    </tr>
+    <tr *ngFor = "let messaggio of messaggi; let i=index">
+        <td>{{messaggio}}</td>
+        <td><button>Elimina</button></td>
+    </tr>
+</table>
